@@ -44,7 +44,7 @@ AtomDownloadManagerDelegate::~AtomDownloadManagerDelegate() {
   }
 }
 
-void AtomDownloadManagerDelegate::GetItemSavePath(content::DownloadItem* item,
+void AtomDownloadManagerDelegate::GetItemSavePath(download::DownloadItem* item,
                                                   base::FilePath* path) {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::Locker locker(isolate);
@@ -136,7 +136,8 @@ void AtomDownloadManagerDelegate::OnDownloadPathGenerated(
   }
 
   NativeWindow* window = nullptr;
-  content::WebContents* web_contents = item->GetWebContents();
+  content::WebContents* web_contents =
+    content::DownloadItemUtils::GetWebContents(download_item);
   auto relay = web_contents ? NativeWindowRelay::FromWebContents(web_contents)
                             : nullptr;
   if (relay)
@@ -167,8 +168,7 @@ void AtomDownloadManagerDelegate::OnDownloadPathGenerated(
     if (download_item)
       download_item->SetSavePath(path);
 
-    callback.Run(path,
-                 content::DownloadItem::TARGET_DISPOSITION_PROMPT,
+    callback.Run(path, download::DownloadItem::TARGET_DISPOSITION_PROMPT,
                  content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, path,
                  content::DOWNLOAD_INTERRUPT_REASON_NONE);
   }
@@ -180,7 +180,7 @@ void AtomDownloadManagerDelegate::Shutdown() {
 }
 
 bool AtomDownloadManagerDelegate::DetermineDownloadTarget(
-    content::DownloadItem* download,
+    download::DownloadItem* download,
     const content::DownloadTargetCallback& callback) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
 
@@ -226,14 +226,14 @@ bool AtomDownloadManagerDelegate::DetermineDownloadTarget(
 }
 
 bool AtomDownloadManagerDelegate::ShouldOpenDownload(
-    content::DownloadItem* download,
+    download::DownloadItem* download,
     const content::DownloadOpenDelayedCallback& callback) {
   return true;
 }
 
 void AtomDownloadManagerDelegate::GetNextId(
     const content::DownloadIdCallback& callback) {
-  static uint32_t next_id = content::DownloadItem::kInvalidId + 1;
+  static uint32_t next_id = download::DownloadItem::kInvalidId + 1;
   callback.Run(next_id++);
 }
 
