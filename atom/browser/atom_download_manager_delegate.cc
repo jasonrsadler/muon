@@ -169,8 +169,8 @@ void AtomDownloadManagerDelegate::OnDownloadPathGenerated(
       download_item->SetSavePath(path);
 
     callback.Run(path, download::DownloadItem::TARGET_DISPOSITION_PROMPT,
-                 content::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, path,
-                 content::DOWNLOAD_INTERRUPT_REASON_NONE);
+                 download::DOWNLOAD_DANGER_TYPE_NOT_DANGEROUS, path,
+                 download::DOWNLOAD_INTERRUPT_REASON_NONE);
   }
 }
 
