@@ -118,6 +118,9 @@ WebViewImpl.prototype.attachGuest = function (guestInstanceId) {
 
 WebViewImpl.prototype.setTabId = function (tabID) {
   this.tabID = tabID
+  GuestViewInternal.addListener(tabID, (domEvent) => {
+    this.dispatchEvent(domEvent)
+  })
 }
 
 WebViewImpl.prototype.getId = function () {
