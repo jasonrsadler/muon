@@ -657,13 +657,15 @@ index cca3bbb41ae25484c3e87c9aba09a8b07741e2b2..57abbcfd90dab7bbf1b5dffc35b17d3a
    NSString* outer_app_dir_ns = [NSString stringWithUTF8String:outer_app_dir_c];
  
 diff --git a/chrome/common/chrome_version.h.in b/chrome/common/chrome_version.h.in
-index f0a0bcd0098ec31b18bb00588ad8fd11b439fd6f..888572f87a71e6e8444bd6a302343e453aef4287 100644
+index f0a0bcd0098ec31b18bb00588ad8fd11b439fd6f..32a42063be29461cd51eeee04092c2521c8c2da5 100644
 --- a/chrome/common/chrome_version.h.in
 +++ b/chrome/common/chrome_version.h.in
-@@ -22,3 +22,5 @@
+@@ -22,3 +22,7 @@
  // Changelist Information
  
  #define LASTCHANGE_STRING "@LASTCHANGE@"
++
++#define EXECUTABLE_NAME "@EXECUTABLE_NAME@"
 +
 +#define EXECUTABLE_NAME "@EXECUTABLE_NAME@"
 diff --git a/chrome/common/crash_keys.cc b/chrome/common/crash_keys.cc
@@ -1764,8 +1766,35 @@ index c71192a041a22737af6e14fc77f6a7b1db35fbb2..b2b78cc719fb62702adff29288d20e6d
    // Switch to our v8 context because we need functions created while running
    // the require()d module to belong to our context, not the current one.
    v8::Context::Scope context_scope(context);
+diff --git a/extensions/renderer/resources/guest_view/guest_view.js b/extensions/renderer/resources/guest_view/guest_view.js
+index 70726b46d6ab39c1a29252d09c3549afd101cc3c..b78e0aafc1f5c049d34a43325e2aa22f12161fd7 100644
+--- a/extensions/renderer/resources/guest_view/guest_view.js
++++ b/extensions/renderer/resources/guest_view/guest_view.js
+@@ -251,6 +251,12 @@ GuestViewImpl.prototype.destroyImpl = function(callback) {
+     return;
+   }
+ 
++  // (petemill) If the guest is not attached anymore, do not destroy it
++  if (!this.internalInstanceId) {
++    this.handleCallback(callback);
++    return;
++  }
++
+   // If this guest is attached, then detach it first.
+   if (!!this.internalInstanceId) {
+     GuestViewInternalNatives.DetachGuest(this.internalInstanceId);
+@@ -282,7 +288,8 @@ GuestViewImpl.prototype.detachImpl = function(callback) {
+       $Function.bind(this.handleCallback, this, callback));
+ 
+   this.internalInstanceId = 0;
+-  this.state = GuestViewImpl.GuestState.GUEST_STATE_CREATED;
++  // (petemill) reset the state to show guest is not attached
++  this.state = GuestViewImpl.GuestState.GUEST_STATE_START;
+ };
+ 
+ // Internal implementation of setSize().
 diff --git a/extensions/renderer/resources/guest_view/guest_view_container.js b/extensions/renderer/resources/guest_view/guest_view_container.js
-index 2ef77f4f6359618be7b37d0804a77dd4883dbc06..47f9059b1819810fc4284a9d63aae1d8c658431f 100644
+index 2ef77f4f6359618be7b37d0804a77dd4883dbc06..c85dc7cf4aebcfccbab6989a3f10b22c8d8b6928 100644
 --- a/extensions/renderer/resources/guest_view/guest_view_container.js
 +++ b/extensions/renderer/resources/guest_view/guest_view_container.js
 @@ -26,6 +26,7 @@ function GuestViewContainer(element, viewType) {
