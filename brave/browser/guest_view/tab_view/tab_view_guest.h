@@ -31,7 +31,8 @@ class TabViewGuest : public guest_view::GuestView<TabViewGuest> {
   void DetachGuest();
   void SetCanRunInDetachedState(bool can_run_detached);
   void TabIdChanged();
-
+  void WindowIdChanged();
+  
   void Load();
 
  private:

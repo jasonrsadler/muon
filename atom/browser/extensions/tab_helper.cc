@@ -468,6 +468,9 @@ void TabHelper::SetWindowId(const int32_t& id) {
   SessionID session;
   session.set_id(id);
   SessionTabHelper::FromWebContents(web_contents())->SetWindowID(session);
+  if (guest()) {
+    guest()->WindowIdChanged();
+  }
 }
 
 int32_t TabHelper::window_id() const {

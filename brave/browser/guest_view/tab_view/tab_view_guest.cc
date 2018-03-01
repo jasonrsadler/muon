@@ -232,6 +232,17 @@ void TabViewGuest::TabIdChanged() {
       "webViewInternal.onTabIdChanged", std::move(args)));
 }
 
+void TabViewGuest::WindowIdChanged() {
+  DCHECK(api_web_contents_);
+  if (api_web_contents_) {
+    if (owner_web_contents()) {
+      api_web_contents_->Emit("set-window", owner_web_contents());
+      return;
+    }
+    api_web_contents_->Emit("set-window");
+  }
+}
+
 void TabViewGuest::DidInitialize(const base::DictionaryValue& create_params) {
   v8::Isolate* isolate = v8::Isolate::GetCurrent();
   v8::Locker locker(isolate);
@@ -346,6 +357,7 @@ void TabViewGuest::ApplyAttributes(const base::DictionaryValue& params) {
       }
     }
   }
+  api_web_contents_->Emit("guest-created", owner_web_contents());
 }
 
 void TabViewGuest::DidAttachToEmbedder() {
