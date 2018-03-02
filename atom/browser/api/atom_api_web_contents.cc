@@ -1711,7 +1711,7 @@ void WebContents::LoadURL(const GURL& url, const mate::Dictionary& options) {
 
 void OnDownloadStarted(base::Callback<void(download::DownloadItem*)> callback,
                         download::DownloadItem* item,
-                        content::DownloadInterruptReason reason) {
+                        download::DownloadInterruptReason reason) {
   content::BrowserThread::PostTask(content::BrowserThread::UI, FROM_HERE,
       base::Bind(callback, item));
 }
